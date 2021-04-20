@@ -1,0 +1,17 @@
+{
+  "name": "nodejs-hamedani",
+  "version": "1.0.0",
+  "description": "To get more in-depth knowledge of Node and practice.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sibasish",
+  "license": "ISC",
+  "dependencies": {
+    "config": "^3.3.6",
+    "debug": "^2.6.9",
+    "express": "^4.17.1",
+    "joi": "^17.4.0"
+  }
+}

@@ -1,0 +1,4 @@
+API stands for Application Programming Interface. 
+An API is a messenger that accepts requests and tells the system what user wants to do and returns the response back to the user.
+So, basically APIs are services that communicates between two end points via queries and parameters. An api allows two software programs to communicate with each other. One program can call another program's API to get access to data or functionality of the other program.
+API parameters are options that can be passed with the request to influence or streamline the response.

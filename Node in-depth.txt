@@ -1,0 +1,120 @@
+-- Definition --
+NodeJS is a runtime environment for executing JS codes outside the browser. We use Node to build back-end services and APIs.
+
+-> Great for prototyping and agile development.
+-> Super fast and highly scalable.
+-> JS everywhere 
+-> Cleaner and more consistent codebase 
+-> largest eco system of open-source libs 
+
+-- How Node Works ? --
+-> Node has an non-blocking or asynchronus architecture. 
+-> Node applications are asynchronous by default.
+-> A single thread is used to handle multiple requests. Whenever an user makes a request to a DB, that single thread is used to handle that request. That thread doesnt wait for the DB to stop searching and give the result, instead it moves on to the next user's request. 
+When the DB finishes preparing for the result, it puts a message in an EVENT QUEUE. Node is always monitoring this queue in the background, when it finds an event in the queue, it will take it out and process it. 
+This is the reason why Node is ideal for I/O intensive apps.
+It should only be used to build data intensive real time applications and not CPU intensive applications.  
+
+-- Executing code in NodeJS -- 
+- make a directory - create a file - write some code - go to cmd line - execute the .js by calling -> node filename.js 
+
+-- Node Module System --
+global objects in JS - console.log() , setTimeout() , clearTimeout() , setInterval() , clearInterval()  
+
+-> For browser, the global object is the "window" object, by which we can access any methods, functions or variables defined inside the global scope.
+window.console.log() or console.log()
+
+--> In the browser or client side JS, the functions and the variables that are defined inside a file are avaialbe via the "window" object, because the variables and the functions are stored globally.
+
+-> In Node, the global object is the "global" object.
+global.console.log() or console.log()
+
+--> Whereas in Node or server side JS, variables and functions that are defined inside a file is only limited to that file locally. Those are not added to global objects, they are only scoped to the file. 
+eg: var message = ""; console.log(global.message);
+node app.js will result in "undefined" because the variable "message" is defined inside the scope of app.js and not inside the scope of the "global" variable.
+
+--> In Node, every file is a module and the variables and functions defined inside those files are scoped inside that particular module and not available outside the module.
+
+--> Node doesnt execute our code directly. When we call node app.js, node wraps the contents of app.js into a function, known as module wrapper function and then executes it immediately, also known as IIFE ( immediately invoked fucntion expression )
+--> Syntax - 
+( function (exports, require, module, __filename, __dirname ){
+    This is where the main content of app.js resides.
+ })() 
+
+-- How require() works --
+
+--> require("path") -> the argument that we pass inside the require function, Node assumes it to be a built-in or core module. If the module is not available, then Node will will search for the module in the relative path mentioned in the argument. If it doesnt find the module in the relative path, then it looks for the module or package name in the node_modules folder. 
+So basically, first, it will think of it as a core or built-in module, then it will look for the file or folder ( ./module_name ). Lastly, it will look for that module or package inside the node_modules folder. This is how require() function works.
+
+-> path module - Provides utilities for working with files and directory paths. require("path")
+
+-> OS module - provides information of our current operating system. require("os")
+
+-> fs module - provides utilites for working with files. require("fs")
+There are two types of methods available for each method. Sync method, i.e, blocking and Async method, i.e, non-blocking. In real world applications, we should always use async methods because they are non-blocking ( async methods should always be used, because a node process is always a single thread process. To be able to serve mutltiple clients at the same time, we should always use async methods. ) 
+--> Always pass an async function with two arguments, an error and the result. The error will log any error and the result will display the result. 
+---> To look for the files in the current folder : 
+fs.readdir("./", (err, files)=>{
+    if (err) console.log("Error", err)
+    else console.log("Result", files)
+})
+
+-> Events module - 
+Event is a core concept of Node. Event is a signla which indicates something has happened in our application. 
+EventEmitter is the main class of the events and within it lies every useful method.
+const EventEmitter = require("event");
+Here, EventEmiiter is a class and not an object. ** A class is a container for related properties and functions which we call methods. **
+
+TO use the EventEmitter, we need to first create an instance of the class 
+const emitter = new EventEmitter(); -> Here, emitter is an object. 
+The object is an instance of the class.
+
+A class is like a human and an object is like a particular person.
+
+emitter.emit() -> to signal that an event took place in our application. It is a method that we use to raise an event. Emitting an event.
+emitter.emit("name of the event");
+
+-> After emitting the event, we need to register the event, rather listen to the event. 
+A listener is a function which is called when an event is raised to listen to the event and then execute blocks of code according to event emitted. 
+emitter.on("name of the event", callback function ) - The name of the event should match with the name of event mentioned inside the .emit() function.
+The callback function will be called when an event is raised.
+
+Steps : 
+const EventEmitter = require("events")
+const emitter = new EventEmitter();
+
+emitter.on("eventName", (arg1, arg2)=> {
+    console.log("Listened to the event", arg1, arg2)
+})
+
+emitter.emit("eventName", {arg1 : value1, arg2 : value2})
+
+---> When we raise an event, we want to send a data about that event. To do that, we need pass in arguments inside "emit" function and pass in parameters in the cb function inside the .on() function, i.e the listener. 
+-> By this technique, we can pass data about the event that has happened.
+
+
+-> HTTP module - to create networking application. 
+We can create a web server which will listen to a HTTP request on a given port. With this, we can create a back end service for our application.
+
+---> We dont use the HTTP module. We use a framework called ExpressJS which is built on the HTTP module.
+
+-- NPM or Node Package Manager --
+
+It is basically a CL tool ( Command Line tool ) as well as a registry for the third party modules and packages that we can add into our application.
+
+--> The versions of Node and NPM differs because both of them are built independently. 
+Also, we need to install NPM globally - npm install -g npm ( this will install the latest updated version available )
+
+-> package.json - It is json file which contains the names of the packages used in the project, version, name of the project and it makes our build reproducable and therfore easier to share with other developers. 
+--> Every node module has a package.json file just like our application.
+
+--> Semantic versioning or SemVer - The version of a node package has 4 numbers : 4.13.2, the first number, 4, is the major version, the seconmd number, 13 is called the minor version and the last number is called the patch version or patch release, which is used for bug fixes. Basically its Major.Minor.Patch 
+Minor version is increased when the devs add new feature without breaking the API.
+If the devs add new feature which changes the functioning of the application and how it interacts with other applications, then they change the Major version ( first number ).
+^4.13.2 means the application will run for any specific verion of 4. If anyone wants to use our application and then at that point, a newer minor update is available for the application ( 4.14.1 ), then they can install and use the app without any problem. Just the major version number has to be the same.
+
+--> To check for the version of all the installed packages,modules and its dependencies -> npm list 
+
+--> To check for the version of all the installed packages in our application, we use -> npm list --depth=0
+
+--> To install a particular version of the package -> npm i package_name@version

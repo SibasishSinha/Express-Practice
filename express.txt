@@ -1,0 +1,168 @@
+--> A framework which is based on the HTTP module of NodeJS. 
+We cannot use HTTP module for building building long apps because it will become very difficult to create the routes with if-else statements and it wont be easily maintainable.
+
+-- Environment Variables --
+--> An Environment Variable is a variable which is the part of the environment in which a process runs. Its value is set outside the application we are building and in an environment where the application processes are running. The port number is an environment variable.
+
+-> the hard coded value of port number doesnt work in a production environment. When we deploy our app using any hosting services, the port number is dynamically assigned by the hosting environment. 
+The way to fix this is by using an environment variable.
+
+const port = process.env.PORT || 3000; --> This is how we set our port. 
+process.env.PORT is the port number assigned by the hosting environment. If the host doesnt provide any port number, we will use the default port number of 3000.
+
+--> We can set the port number in our command line by using "export" command
+export PORT=5000
+
+--Setting up Request params--
+app.get("/api/posts/:number/:likes", (req,res)=>{
+    res.send(req.params);
+})
+-> req.params is an object which deals with use requests.
+--> To write a parameter use :number :likes
+-> req.params.number or req.params.likes will display that particular information.
+
+-> If an user sends a request for "/api/posts/2/75" this route, then the number and likes will be replaced by the requested values. The values will be displayed in the form of JSON. 
+The text or values which comes after / are known as parameters. We can also do Query requests too. 
+
+-- Setting up Query Params --
+queries comes after a ? 
+
+---> /api/posts/:number/:likes?sortBy=name
+---> ?sortBy=name -> query params
+
+app.get("/api/posts/:number/:likes", (req,res)=>{
+    res.send(req.query);
+})
+
+
+-- HANDLING GET REQUESTS --
+app.get("/names/:id", (req,res)=>{
+    
+    --> Find a name among the "names" array of the person whose id matches with the id requested by the user. IF the id's dont match, an error message will be displayed
+
+    const result = names.find(name => name.id === parseInt(req.params.id));
+    
+    --> If the name is found, send the name with ID, and if not, display an error message with 404 status code
+    if (result){
+        res.status(200).send(result)
+    } else {
+        res.status(404).send("The ID you are searching is not found !")
+    }
+})
+
+-- HANDLING POST REQUESTS --
+--> Make sure to use the middleware express.json()  
+app.use(express.JSON())
+
+---> Using the POST request to create a new name in "names" array
+--> Here, we need to read the "name" object which the user will input in the body of the request and add the "name" object to our "names" array.
+
+app.post("/api/names/", (req,res)=>{
+    --> creating a name obj
+    const n = {
+        id : names.length + 1,
+        name : req.body.name --> We need to read the "name" property of an object in the request body. So we can read that property.
+    }
+    --> pushing the name object into our array
+    names.push(n);
+    res.send(n); // display the pushed data in the request body
+})
+
+-- INPUT VALIDATION --
+-> We should  always check the data, the user sends before posting it into our DB.
+Validation should be done in the post request part. 
+Package that makes validation easier - joi ( npm install joi )
+app.post("/api/names/", (req,res)=>{
+    
+    
+
+    const n = {
+        id : names.length + 1,
+        name : req.body.name 
+    }
+    names.push(n);
+    res.send(n); 
+})
+
+-- MIDDLEWARE --
+A middleware is a function is a function which takes requests from a client and either returns a response to the client or passes it to another middleware function.
+
+Every route handler function is a middleware function because it takes requests and returns response. 
+app.get("/", (req,res)=>{})
+
+or, app.use(middleware fucntion)
+
+-- Creating own middleware function -> 
+-> Create a different module for the middleware function or else create a folder and store all the middleware files inside the folder 
+app.use(function(req, res, next){
+    console.log();
+    next(); 
+})
+We can build middleware functions in 2 two ways ->
+1. Which will end our req-res cycle by providing a response to the client 
+2. Which will continue our req-res cycle and pass the client's req to the next middleware function. For this, we need to provide the next() method at the end of user defined middleware function.
+
+-- ENVIRONMENT --
+We want to know which environment our app is running on - development env or production env, according to that, we want to enable or disable some features. 
+
+--> We can define our environment in the CLI by using the command,
+export NODE_ENV=development 
+This will only work if we have set the environment variable inside the code-block dynamically.
+
+
+-- CONFIG --
+Store configuration for each environment and how to over-write them.
+
+---> install config package and create a folder called config. 
+inside config, create a default config file called "default.json" which will define the default configuration of our app.
+-->in default.json - {
+    "name" : "Express App"
+}
+
+---> Then we create another file called "development.json", here we can define settings specific to the development environment.
+In development.json, we can over-write the settings defined inside the "default.json" file or add new settings.
+-->in development.json - 
+{
+    "name" : "My Express app",
+    "mail" : {
+        "host" : "dev-mail-server"
+    }
+} -> "mail" is where we store the information about our mail server.
+
+---> For our production environment, "production,json"
+{
+    "name" : "My Express app - Production",
+    "mail" : {
+        "host" : "production-mail-server"
+    }
+}
+
+
+
+Using this package ( npm i config ), we can see our default configuration as well as configuration for each environment.
+
+Now in index.js, we require the config module and get various settings for our application.
+If we set our environment, then the configurations will be displayed accordingly.
+For example, if we set our environment to development, it will show all the configurations of the development environment.
+export NODE_ENV=development
+" Our APP Env is : development
+Application name : My Express app - Development
+Application name : dev-mail-server " -> This will be the output
+
+-- DO NOT STORE SENSITIVE INFORMATION INSIDE THESE CONFIG FILES. STORE THEM IN ENVIRONMENT VARIABLES --
+--> export app_password=1234 -> this is set the password used inside the "app" appliction to 1234. 
+--> Make sure to include the name of the application before the variable to avoid confusion between other env variables of the same name. 
+
+---> We need to create custom-environment-variables.json file,
+Here, we define the mapping of configuration settings to environment variables.
+
+{
+    "mail" : {
+        "password" : "app_password"
+    }
+        
+} -> Since, we already set our password, we only need to map the settings to the variables.
+Now, inside index.js -> 
+console.log("Mail Password : " + config.get("mail.password")); to get the password
+
+-- DEBUG --
